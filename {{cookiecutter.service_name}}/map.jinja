@@ -1,8 +1,9 @@
-{%- set source_engine = salt['pillar.get']('{{cookiecutter.service_name}}:{{cookiecutter.role_name}}:source:engine') %}
+{% raw %}
+{%- set {% endraw %}source_engine = salt['pillar.get']('{{cookiecutter.service_name}}:{{cookiecutter.role_name}}:source:engine'){% raw %} %}
 
 {%- load_yaml as base_defaults %}
 {%- if source_engine == 'git' %}
-Debian:
+{% endraw %}Debian:
   pkgs:
   - python-psycopg2
   dir:
@@ -16,13 +17,13 @@ RedHat:
     base: /srv/{{cookiecutter.service_name}}/venv
     home: /var/lib/{{cookiecutter.service_name}}
     workspace: /srv/{{cookiecutter.service_name}}/workspace
-{%- else %}
+{% raw %}{%- else %}{% endraw %}
 Debian:
   pkgs:
   - helpdesk
   dir:
     base: /usr/lib/{{cookiecutter.service_name}}
-{%- endif %}
+{% raw %}{%- endif %}
 {%- endload %}
 
-{%- set {{cookiecutter.role_name}} = salt['grains.filter_by'](base_defaults, merge=salt['pillar.get']('{{cookiecutter.service_name}}:{{cookiecutter.role_name}}')) %}
+{%-{% endraw %} set {{cookiecutter.role_name}} = salt['grains.filter_by'](base_defaults, merge=salt['pillar.get']('{{cookiecutter.service_name}}:{{cookiecutter.role_name}}')) {% raw %}%}{% endraw %}
