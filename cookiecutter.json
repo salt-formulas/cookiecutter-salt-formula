@@ -1,0 +1,6 @@
+{
+    "project_name": "salt-formula",
+    "repo_name": "{{ cookiecutter.project_name|replace('-', '_') }}",
+    "service_name": "{{ cookiecutter.project_name.split('-')[0] }}",
+    "license_holder": "tcp cloud a.s."
+}

@@ -1,0 +1,6 @@
+applications:
+- {{cookiecutter.service_name}}
+parameters:
+  {{cookiecutter.service_name}}:
+    {{cookiecutter.role_name}}:
+      enabled: true
