@@ -1,23 +1,13 @@
+cookiecutter-salt-formula
+=========================
 
-==================================
-{{cookiecutter.service_name}}
-==================================
+A cookiecutter_ template for Salt Formula.
 
-Service {{cookiecutter.service_name}} description
+Installation
+============
 
-Sample pillars
-==============
+.. code-block:: bash
 
-Single {{cookiecutter.service_name}} service
+    pip install cookiecutter
 
-.. code-block:: yaml
-
-    {{cookiecutter.service_name}}:
-      server:
-        enabled: true
-        version: icehouse
-
-Read more
-=========
-
-* links
+    cookiecutter cookiecutter-salt-formula
