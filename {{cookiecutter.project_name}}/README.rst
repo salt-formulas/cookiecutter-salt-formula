@@ -13,7 +13,7 @@ Single {{cookiecutter.service_name}} service
 .. code-block:: yaml
 
     {{cookiecutter.service_name}}:
-      server:
+      {{cookiecutter.role_name}}:
         enabled: true
         version: icehouse
 
