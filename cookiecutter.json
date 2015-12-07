@@ -1,8 +1,8 @@
 {
-    "project_name": "salt-formula",
-    "repo_name": "{{ cookiecutter.project_name|replace('-', '_') }}",
-    "service_name": "{{ cookiecutter.project_name.split('-')[0] }}",
+    "service_name": "some_service",
     "role_name": "server",
+    "project_name": "{{ cookiecutter.service_name }}-formula",
+    "repo_name": "{{ cookiecutter.service_name|replace('_', '-') }}-formula",
     "license_holder": "tcp cloud a.s.",
     "author_contact": "Ales Komarek <ales.komarek@tcpcloud.eu>"
 }

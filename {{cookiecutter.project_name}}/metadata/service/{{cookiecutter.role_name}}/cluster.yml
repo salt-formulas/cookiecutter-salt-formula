@@ -1,45 +1,10 @@
 applications:
-- heat
+- {{cookiecutter.service_name}}
+classes:
+- service.{{cookiecutter.service_name}}.support
 parameters:
-  heat:
-    server:
+  {{cookiecutter.service_name}}:
+    {{cookiecutter.role_name}}:
       enabled: true
-      version: ${_param:heat_version}
       bind:
-        api_cfn:
-          address: ${_param:cluster_local_address}
-        api_cloudwatch:
-          address: ${_param:cluster_local_address}
-        api:
-          address: ${_param:cluster_local_address}
-      database:
-        engine: mysql
-        host: ${_param:cluster_vip_address}
-        port: 3306
-        name: heat
-        user: heat
-        password: ${_param:mysql_heat_password}
-      metadata:
-        host: ${_param:cluster_vip_address}
-        port: 8000
-      waitcondition:
-        host: ${_param:cluster_vip_address}
-        port: 8000
-      watch:
-        host: ${_param:cluster_vip_address}
-        port: 8003
-      identity:
-        engine: keystone
-        host: ${_param:cluster_vip_address}
-        port: 35357
-        tenant: service
-        user: heat
-        password: ${_param:keystone_heat_password}
-      message_queue:
-        engine: rabbitmq
-        host: ${_param:cluster_vip_address}
-        port: 5672
-        user: openstack
-        password: ${_param:rabbitmq_openstack_password}
-        virtual_host: '/openstack'
-        ha_queues: true
+        address: 0.0.0.0
