@@ -20,7 +20,7 @@ RedHat:
 {% raw %}{%- else %}{% endraw %}
 Debian:
   pkgs:
-  - helpdesk
+  - {{cookiecutter.service_name}}
   dir:
     base: /usr/lib/{{cookiecutter.service_name}}
 {% raw %}{%- endif %}
