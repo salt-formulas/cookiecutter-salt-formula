@@ -1,7 +1,7 @@
 DESTDIR=/
 SALTENVDIR=/usr/share/salt-formulas/env
 RECLASSDIR=/usr/share/salt-formulas/reclass
-FORMULANAME=$(shell grep name: metadata.yml|head -1|cut -d : -f 2|grep -Eo '[a-z0-9\-]*')
+FORMULANAME=$(shell grep name: metadata.yml|head -1|cut -d : -f 2|grep -Eo '[a-z0-9\-\_]*')
 
 all:
 	@echo "make install - Install into DESTDIR"
