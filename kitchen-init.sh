@@ -1,21 +1,25 @@
 #!/bin/bash
 
+# Script to add Kitchen configuration to existing formulas.
 # usage:
-# cd <formula repo>; ./kitchen_init.sh
+# curl -sL "https://git.tcpcloud.eu/cookiecutter-templates/cookiecutter-salt-formula/raw/master/kitchen-init.sh" | bash -s --
 
 
 # CONFIG
+###################################
 
-export DRIVER=${DRIVER:-vagrant}      # vagrant, dokken, openstack, ...
-export VERIFIER=${VERIFIER:-inspec}  # serverspec, pester
-export KITCHEN_YML=${KITCHEN_YML:-.kitchen.yml}
+export driver=${driver:-vagrant}      # vagrant, dokken, openstack, ...
+export verifier=${verifier:-inspec}   # serverspec, pester
 
-export FORMULA=${FORMULA:-$(awk -F: '/name/{gsub(/[\ \"]/,"");print $2}' metadata.yml)}
-export SUITES=$(ls tests/pillar|xargs -I{} basename {} .sls)
+export formula=${formula:-$(awk -f: '/name/{gsub(/[\ \"]/,"");print $2}' metadata.yml)}
+export suites=$(ls tests/pillar|xargs -i{} basename {} .sls)
 
+export SOURCE_REPO_URI="https://git.tcpcloud.eu/cookiecutter-templates/cookiecutter-salt-formula/raw/master/%7B%7Bcookiecutter.project_name%7D%7D"
+
+which envtpl &> /dev/null|| pip3 install envtpl
 
 # INIT
-
+###################################
 test ! -e .kitchen.yml || {
   kitchen init -D kitchen-docker -P kitchen-salt --no-create-gemfile
   echo .kitchen >> .gitignore
@@ -24,11 +28,9 @@ test ! -e .kitchen.yml || {
   rm -f chefignore
 }
 
-test -e INTEGRATION.rst || \
-wget 'https://git.tcpcloud.eu/cookiecutter-templates/cookiecutter-salt-formula/raw/master/%7B%7Bcookiecutter.project_name%7D%7D/INTEGRATION.rst' -O INTEGRATION.rst 2>/dev/null
 
-# CONFIGURE & SCAFFOLD TEST STRUCTURE
-
+# CONFIGURE & SCAFFOLD TEST DIR
+###################################
 test -d tests/integration || {
   for suite in $SUITES; do
     mkdir -p tests/integration/$suite/$VERIFIER
@@ -39,152 +41,25 @@ test -d tests/integration || {
 
 
 # .KITCHEN.YML
+###################################
 
-cat > .kitchen.yml.jinja <<-EOF
-	---
-	driver:
-	  name: $DRIVER
-	{%- if DRIVER == 'docker' %}
-	  hostname: $FORMULA.ci.local
-	  use_sudo: false
-	{%- elif DRIVER == 'vagrant' %}
-	  vm_hostname: $FORMULA.ci.local
-	  use_sudo: false
-	  customize:
-	    memory: 512
-	{%- endif %}
-	
-	
-	provisioner:
-	  name: salt_solo
-	  salt_install: bootstrap
-	  salt_bootstrap_url: https://bootstrap.saltstack.com
-	  salt_version: latest
-	  formula: $FORMULA
-	  log_level: info
-	  state_top:
-	    base:
-	      "*":
-	        - $FORMULA
-	  pillars:
-	    top.sls:
-	      base:
-	        "*":
-	          - $FORMULA
-	  grains:
-	    noservices: {{ 'True' if DRIVER=='docker' else 'False' }}
-	
-	
-	verifier:
-	  name: $VERIFIER
-	  sudo: true
-	
-	
-	platforms:
-	  - name: ubuntu-14.04
-	  - name: ubuntu-16.04
-	  - name: centos-7.1
-	
-	
-	suites:
-	  {%- if DRIVER == 'vagrant' %}
-	  # Default suite, smoke test, setup prerequisites and executes run ./tests/run_tests.sh
-	  - name: default
-	    includes:
-	      - ubuntu-16.04
-	    driver:
-	      name: local
-	      provision_command:
-	        - apt-get install -y git build-essential python-pip python-yaml python-dev python-virtualenv
-	    provisioner:
-	      name: shell
-	      script: tests/bootstrap.sh
-	
-	  {%- endif %}
-	  {%- for suite in SUITES.split() %}
-	
-	  - name: {{ suite }}
-	    provisioner:
-	      pillars-from-files:
-	        $FORMULA.sls: tests/pillar/{{suite}}.sls
-	  {%- endfor %}
-	
-	# vim: ft=yaml sw=2 ts=2 sts=2 tw=125
-EOF
-
-#FIXME, remove comment \{\% for name, value in environment('SUITE_') \%\}
-
-which envtpl &> /dev/null|| pip3 install envtpl
-envtpl < .kitchen.yml.jinja > .kitchen.yml
+test -e .kitchen.yml || \
+envtpl < <(curl -sL  "${SOURCE_REPO_URI}/.kitchen.yaml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.yml
 
 [[ "$DRIVER" != "docker" ]] && {
   test -e .kitchen.docker.yml || \
-  DRIVER=docker envtpl < <(head -n12 .kitchen.yml.jinja) > .kitchen.docker.yml
+  envtpl < <(curl -sL  "${SOURCE_REPO_URI}/.kitchen.yaml" -- | sed 's/cookiecutter\.kitchen_//g' | head -n12 ) > .kitchen.docker.yml
 }
 
-
 test -e .kitchen.openstack.yml || \
-cat > .kitchen.openstack.yml <<-\EOF
-	# usage: `KITCHEN_LOCAL_YAML=.kitchen.openstack.yml kitchen test`
-
-	# https://docs.chef.io/config_yml_kitchen.html
-	# https://github.com/test-kitchen/kitchen-openstack
-
-	---
-	driver:
-	  name: openstack
-	  openstack_auth_url: <%= ENV['OS_AUTH_URL'] %>/tokens
-	  openstack_username: <%= ENV['OS_USERNAME'] || 'ci' %>
-	  openstack_api_key:  <%= ENV['OS_PASSWORD'] || 'ci' %>
-	  openstack_tenant:   <%= ENV['OS_TENANT_NAME'] || 'ci_jenkins' %>
-
-	  #floating_ip_pool: <%= ENV['OS_FLOATING_IP_POOL'] || 'nova' %>
-	  key_name: <%= ENV['BOOTSTRAP_SSH_KEY_NAME'] || 'bootstrap_insecure' %>
-	  private_key_path: <%= ENV['BOOTSTRAP_SSH_KEY_PATH'] || "#{ENV['HOME']}/.ssh/id_rsa_bootstrap_insecure" %>
-
-
-	platforms:
-	  - name: ubuntu-14.04
-	    driver:
-	      username: <%= ENV['OS_UBUNTU_IMAGE_USER'] || 'root' %>
-	      image_ref: <%= ENV['OS_UBUNTU_IMAGE_REF'] || 'ubuntu-14-04-x64-1455869035' %>
-	      flavor_ref: m1.medium
-	      network_ref:
-	        <% if ENV['OS_NETWORK_REF'] -%>
-	        - <% ENV['OS_NETWORK_REF'] %>
-	        <% else -%>
-	        - ci-net
-	        <% end -%>
-	    # force update apt cache on the image
-	    run_list:
-	      - recipe[apt]
-	    attributes:
-	      apt:
-	          compile_time_update: true
-	transport:
-	  username: <%= ENV['OS_UBUNTU_IMAGE_USER'] || 'root' %>
-
-	# vim: ft=yaml sw=2 ts=2 sts=2 tw=125
-EOF
-
-
-# CLEANUP
-rm -f .kitchen.yml.jinja
-
-
-# ADD CHANGES TO GIT
-
-git add \
-  .gitignore \
-  .kitchen*yml \
-  INTEGRATION.rst
+envtpl < <(curl -sL  "${SOURCE_REPO_URI}/.kitchen.openstack.yaml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.openstack.yml
 
 
 
-# UPDATE README
+# UPDATE README, etc...
+###################################
 
-# skip if already updated
-grep -Eoq 'Development and testing' README.* && exit 0
+grep -Eoq 'Development and testing' README.* || {
 
 KITCHEN_LIST=$(kitchen list|tail -n+2)
 cat >> README.* <<-\EOF
@@ -228,15 +103,33 @@ cat >> README.* <<-\EOF
 	
 	.. code-block:: shell
 	
-	  # manually
-	  kitchen [test || [create|converge|verify|exec|login|destroy|...]] -t tests/integration
+	 # list instances and status
+	 kitchen list
 	
-	  # or with provided Makefile within CI pipeline
-	  make kitchen
+	 # manually execute integration tests
+	 kitchen [test || [create|converge|verify|exec|login|destroy|...]] [instance] -t tests/integration
+	
+	 # use with provided Makefile (ie: within CI pipeline)
+	 make kitchen
 	
 EOF
+}
 
-git add README.*
+test -e INTEGRATION.rst || \
+curl -sL  "${SOURCE_REPO_URI}/INTEGRATION.rst" -o INTEGRATION.rst
+
+
+# ADD CHANGES TO GIT
+###################################
+
+# update Makefile, but do not auto-add to git
+curl -sL  "${SOURCE_REPO_URI}/Makefile" -o Makefile
+
+git add \
+  .gitignore \
+  .kitchen*yml \
+  INTEGRATION.rst \
+  README.rst
+
 git status
 
-echo "Note: Dont forget to add kitchen targets to 'Makefile'.
