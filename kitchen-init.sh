@@ -2,7 +2,7 @@
 
 # Script to add Kitchen configuration to existing formulas.
 # usage:
-# curl -sL "https://git.tcpcloud.eu/cookiecutter-templates/cookiecutter-salt-formula/raw/master/kitchen-init.sh" | bash -s --
+# curl -skL "https://git.tcpcloud.eu/cookiecutter-templates/cookiecutter-salt-formula/raw/master/kitchen-init.sh" | bash -s --
 
 
 # CONFIG
@@ -44,15 +44,15 @@ test -d tests/integration || {
 ###################################
 
 test -e .kitchen.yml || \
-envtpl < <(curl -sL  "${SOURCE_REPO_URI}/.kitchen.yaml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.yml
+envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.yaml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.yml
 
 [[ "$DRIVER" != "docker" ]] && {
   test -e .kitchen.docker.yml || \
-  envtpl < <(curl -sL  "${SOURCE_REPO_URI}/.kitchen.yaml" -- | sed 's/cookiecutter\.kitchen_//g' | head -n12 ) > .kitchen.docker.yml
+  envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.yaml" -- | sed 's/cookiecutter\.kitchen_//g' | head -n12 ) > .kitchen.docker.yml
 }
 
 test -e .kitchen.openstack.yml || \
-envtpl < <(curl -sL  "${SOURCE_REPO_URI}/.kitchen.openstack.yaml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.openstack.yml
+envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.openstack.yaml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.openstack.yml
 
 
 
@@ -116,14 +116,14 @@ EOF
 }
 
 test -e INTEGRATION.rst || \
-curl -sL  "${SOURCE_REPO_URI}/INTEGRATION.rst" -o INTEGRATION.rst
+curl -skL  "${SOURCE_REPO_URI}/INTEGRATION.rst" -o INTEGRATION.rst
 
 
 # ADD CHANGES TO GIT
 ###################################
 
 # update Makefile, but do not auto-add to git
-curl -sL  "${SOURCE_REPO_URI}/Makefile" -o Makefile
+curl -skL  "${SOURCE_REPO_URI}/Makefile" -o Makefile
 
 git add \
   .gitignore \
