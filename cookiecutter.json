@@ -4,5 +4,10 @@
     "project_name": "{{ cookiecutter.service_name }}-formula",
     "repo_name": "{{ cookiecutter.service_name|replace('_', '-') }}-formula",
     "license_holder": "tcp cloud a.s.",
-    "author_contact": "Ales Komarek <ales.komarek@tcpcloud.eu>"
+    "author_contact": "tcpcloud <cloud@tcpcloud.eu>",
+
+    "kitchen_driver": "vagrant",
+    "kitchen_verifier": "inspec",
+    "kitchen_formula": "{{ cookiecutter.service_name }}",
+    "kitchen_suites": ""
 }
