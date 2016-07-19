@@ -44,15 +44,15 @@ test -d tests/integration || {
 ###################################
 
 test -e .kitchen.yml || \
-envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.yaml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.yml
+envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.yml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.yml
 
 [[ "$DRIVER" != "docker" ]] && {
   test -e .kitchen.docker.yml || \
-  envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.yaml" -- | sed 's/cookiecutter\.kitchen_//g' | head -n12 ) > .kitchen.docker.yml
+  envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.yml" -- | sed 's/cookiecutter\.kitchen_//g' | head -n12 ) > .kitchen.docker.yml
 }
 
 test -e .kitchen.openstack.yml || \
-envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.openstack.yaml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.openstack.yml
+envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.openstack.yml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.openstack.yml
 
 
 
