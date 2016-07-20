@@ -45,7 +45,7 @@ platforms:
 
 suites:
   {%- if cookiecutter.kitchen_suites == "" %}
-  #- name: default
+  - name: default
   #  provisioner:
   #    pillars-from-files:
   #      {{ cookiecutter.kitchen_formula }}.sls: tests/pillar/default.sls
