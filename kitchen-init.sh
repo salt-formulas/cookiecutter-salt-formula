@@ -35,10 +35,11 @@ test ! -e .kitchen.yml || {
 # CONFIGURE & SCAFFOLD TEST DIR
 ###################################
 test -d tests/integration || {
-  for suite in $SUITES; do
-    mkdir -p tests/integration/$suite/$VERIFIER
+  for suite in $suites; do
+    mkdir -p tests/integration/$suite/$verifier
+    touch    tests/integration/$suite/$verifier/default_spec.rb
   done
-  mkdir -p tests/integration/helpers/$VERIFIER/
+  mkdir -p tests/integration/helpers/$verifier/
   touch $_/spec_helper.rb
 }
 
