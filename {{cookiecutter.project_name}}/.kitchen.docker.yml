@@ -1,6 +1,7 @@
 ---
 driver:
   name: docker
+  #socket: tcp://127.0.0.1:2376
   hostname: {{ cookiecutter.kitchen_formula }}.ci.local
   use_sudo: false
 

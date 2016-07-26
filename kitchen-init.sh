@@ -16,12 +16,15 @@ export suites=$(ls tests/pillar|xargs -I{} basename {} .sls)
 
 export SOURCE_REPO_URI="https://git.tcpcloud.eu/cookiecutter-templates/cookiecutter-salt-formula/raw/master/%7B%7Bcookiecutter.project_name%7D%7D"
 
-which envtpl &> /dev/null|| pip3 install envtpl
+which envtpl &> /dev/null || {
+  echo "ERROR: missing prerequisite, install 'envtpl' first : pip install envtpl"
+  exit 1
+}
 
 # INIT
 ###################################
 test ! -e .kitchen.yml || {
-  kitchen init -D kitchen-docker -P kitchen-salt --no-create-gemfile
+  kitchen init -D kitchen-vagrant -P kitchen-salt --no-create-gemfile
   echo .kitchen >> .gitignore
   rm -rf test
   rm -f .kitchen.yml
@@ -48,8 +51,7 @@ envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.yml" -- | sed 's/cookiecutter
 
 [[ "$driver" != "docker" ]] && {
   test -e .kitchen.docker.yml || \
-    driver=docker \
-    envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.yml" -- | sed 's/cookiecutter\.kitchen_//g' | head -n12 ) > .kitchen.docker.yml
+    envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.docker.yml" -- | sed 's/cookiecutter\.kitchen_//g' ) > .kitchen.docker.yml
 }
 
 test -e .kitchen.openstack.yml || \

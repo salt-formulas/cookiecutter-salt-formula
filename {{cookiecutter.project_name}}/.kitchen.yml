@@ -2,6 +2,7 @@
 driver:
   name: {{ cookiecutter.kitchen_driver }}
 {%- if cookiecutter.kitchen_driver == 'docker' %}
+  #socket: tcp://127.0.0.1:2376
   hostname: {{ cookiecutter.kitchen_formula }}.ci.local
   use_sudo: false
 {%- elif cookiecutter.kitchen_driver == 'vagrant' %}
