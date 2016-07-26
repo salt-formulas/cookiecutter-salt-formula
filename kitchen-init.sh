@@ -12,7 +12,7 @@ export driver=${driver:-vagrant}      # vagrant, dokken, openstack, ...
 export verifier=${verifier:-inspec}   # serverspec, pester
 
 export formula=${formula:-$(awk -F: '/^name/{gsub(/[\ \"]/,"");print $2}' metadata.yml)}
-export suites=$(ls tests/pillar|xargs -i{} basename {} .sls)
+export suites=$(ls tests/pillar|xargs -I{} basename {} .sls)
 
 export SOURCE_REPO_URI="https://git.tcpcloud.eu/cookiecutter-templates/cookiecutter-salt-formula/raw/master/%7B%7Bcookiecutter.project_name%7D%7D"
 
