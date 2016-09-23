@@ -33,4 +33,4 @@ Instantly for latest version or on existing formulas:
 
 .. code-block:: bash
 
-    curl -skL "https://git.tcpcloud.eu/cookiecutter-templates/cookiecutter-salt-formula/raw/master/kitchen-init.sh" | bash -s --
+    curl -skL "https://raw.githubusercontent.com/tcpcloud/cookiecutter-salt-formula/master/kitchen-init.sh" | bash -s --
