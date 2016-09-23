@@ -4,6 +4,8 @@
 # usage:
 # curl -skL "https://raw.githubusercontent.com/tcpcloud/cookiecutter-salt-formula/master/kitchen-init.sh" | bash -s --
 
+# source gist:
+# https://gist.github.com/epcim/b0368794e69e6807635b0c7268e5ceec
 
 # CONFIG
 ###################################
