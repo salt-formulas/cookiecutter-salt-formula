@@ -1,6 +1,6 @@
 ---
 driver:
-  name: {{ cookiecutter.kitchen_driver }}
+  name: vagrant
   vm_hostname: {{ cookiecutter.kitchen_formula }}.ci.local
   use_sudo: false
   customize:
