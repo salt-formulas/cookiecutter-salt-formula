@@ -1,16 +1,10 @@
 ---
 driver:
   name: {{ cookiecutter.kitchen_driver }}
-{%- if cookiecutter.kitchen_driver == 'docker' %}
-  #socket: tcp://127.0.0.1:2376
-  hostname: {{ cookiecutter.kitchen_formula }}.ci.local
-  use_sudo: false
-{%- elif cookiecutter.kitchen_driver == 'vagrant' %}
   vm_hostname: {{ cookiecutter.kitchen_formula }}.ci.local
   use_sudo: false
   customize:
     memory: 512
-{%- endif %}
 
 
 provisioner:
@@ -32,16 +26,18 @@ provisioner:
   grains:
     noservices: {{ 'True' if cookiecutter.kitchen_driver =='docker' else 'False' }}
 
-
-verifier:
-  name: {{ cookiecutter.kitchen_verifier }}
-  sudo: true
+{%- if cookiecutter.kitchen_driver =='vagrant' %}
 
 
 platforms:
   - name: ubuntu-14.04
   - name: ubuntu-16.04
   - name: centos-7.1
+
+
+verifier:
+  name: {{ cookiecutter.kitchen_verifier }}
+  sudo: true
 
 
 suites:
@@ -59,5 +55,7 @@ suites:
         {{ cookiecutter.kitchen_formula }}.sls: tests/pillar/{{suite}}.sls
   {%- endfor %}
   {%- endif %}
+
+{%- endif %}
 
 # vim: ft=yaml sw=2 ts=2 sts=2 tw=125

@@ -10,7 +10,7 @@
 # CONFIG
 ###################################
 
-export driver=${driver:-vagrant}      # vagrant, dokken, openstack, ...
+export driver=${driver:-docker}       # vagrant, dokken, openstack, ...
 export verifier=${verifier:-inspec}   # serverspec, pester
 
 export formula=${formula:-$(awk -F: '/^name/{gsub(/[\ \"]/,"");print $2}' metadata.yml)}
@@ -19,14 +19,14 @@ export suites=$(ls tests/pillar|xargs -I{} basename {} .sls)
 export SOURCE_REPO_URI="https://raw.githubusercontent.com/tcpcloud/cookiecutter-salt-formula/master/%7B%7Bcookiecutter.project_name%7D%7D"
 
 which envtpl &> /dev/null || {
-  echo "ERROR: missing prerequisite, install 'envtpl' first : pip install envtpl"
+  echo "ERROR: missing prerequisite, install 'envtpl' first : sudo pip install envtpl"
   exit 1
 }
 
 # INIT
 ###################################
 test ! -e .kitchen.yml || {
-  kitchen init -D kitchen-vagrant -P kitchen-salt --no-create-gemfile
+  kitchen init -D kitchen-docker -P kitchen-salt --no-create-gemfile
   echo .kitchen >> .gitignore
   rm -rf test
   rm -f .kitchen.yml
@@ -37,28 +37,37 @@ test ! -e .kitchen.yml || {
 # CONFIGURE & SCAFFOLD TEST DIR
 ###################################
 test -d tests/integration || {
-  for suite in $(echo $suites|xargs); do
-    mkdir -p tests/integration/$suite/$verifier
-    touch    tests/integration/$suite/$verifier/default_spec.rb
-  done
-  mkdir -p tests/integration/helpers/$verifier/
-  touch    tests/integration/helpers/$verifier/spec_helper.rb
+    mkdir -p tests/integration
 }
+#  for suite in $(echo $suites|xargs); do
+#    mkdir -p tests/integration/$suite/$verifier
+#    touch    tests/integration/$suite/$verifier/default_spec.rb
+#  done
+#  mkdir -p tests/integration/helpers/$verifier/
+#  touch    tests/integration/helpers/$verifier/spec_helper.rb
+#}
 
 
 # .KITCHEN.YML
 ###################################
 
 test -e .kitchen.yml || \
-envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.yml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.yml
+  envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.${driver}.yml" -- | sed 's/cookiecutter\.kitchen_//g' ) > .kitchen.yml
 
 [[ "$driver" != "docker" ]] && {
   test -e .kitchen.docker.yml || \
-    envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.docker.yml" -- | sed 's/cookiecutter\.kitchen_//g' ) > .kitchen.docker.yml
+    envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.docker.yml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.docker.yml
 }
 
-test -e .kitchen.openstack.yml || \
-envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.openstack.yml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.openstack.yml
+[[ "$driver" != "vagrant" ]] && {
+  test -e .kitchen.vagrant.yml || \
+    envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.vagrant.yml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.vagrant.yml
+}
+
+[[ "$driver" != "openstack" ]] && {
+  test -e .kitchen.openstack.yml || \
+    envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.openstack.yml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.openstack.yml
+}
 
 
 
