@@ -3,12 +3,10 @@ cookiecutter-salt-formula
 
 A cookiecutter_ template for Salt Formula.
 
-Installation
+Usage
 ============
 
 .. code-block:: bash
-
-    pip install cookiecutter
 
     cookiecutter cookiecutter-salt-formula
 
@@ -16,11 +14,15 @@ Installation
 Init Kitchen CI
 ===============
 
-Install prerequisite (Render jinja2 templates on the command line with shell environment variables)
+Install prerequisites. 
+- `envtpl` is renders jinja2 templates on the command line with shell environment variables.
+- gems required dpends on driver configured to be used (docker by default)
 
 .. code-block:: bash
 
+    pip install cookiecutter
     pip install envtpl
+    gem install kitchen-docker kitchen-vagrant kitchen-salt kitchen-openstack kitchen-inspec busser-serverspec
 
 Once you create your `tests/pillar` structure (required if you want to auto populate kitchen test suites)
 
