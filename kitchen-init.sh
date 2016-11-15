@@ -77,7 +77,8 @@ test -e .kitchen.yml || \
 grep -Eoq 'Development and testing' README.* || {
 
 KITCHEN_LIST=$(kitchen list|tail -n+2)
-cat >> README.* <<-\EOF
+README=$(ls README.*|head -n1)
+cat >> ${README} <<-\EOF
 
 	Development and testing
 	=======================
