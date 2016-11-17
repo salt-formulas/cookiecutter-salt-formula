@@ -12,6 +12,7 @@ provisioner:
   salt_install: bootstrap
   salt_bootstrap_url: https://bootstrap.saltstack.com
   salt_version: latest
+  require_chef: false
   formula: {{ cookiecutter.kitchen_formula }}
   log_level: info
   state_top:
