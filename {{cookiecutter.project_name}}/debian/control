@@ -1,5 +1,5 @@
 Source: salt-formula-{{cookiecutter.service_name}}
-Maintainer: {{cookiecutter.author_name}} {{cookiecutter.author_contact}}
+Maintainer: {{cookiecutter.author_name}} <{{cookiecutter.author_contact}}>
 Section: admin
 Priority: optional
 Build-Depends: debhelper (>= 9), salt-master, python, python-yaml
@@ -12,4 +12,4 @@ Package: salt-formula-{{cookiecutter.service_name}}
 Architecture: all
 Depends: ${misc:Depends}, salt-master, reclass
 Description: {{cookiecutter.service_name}} salt formula
- Install and configure {{cookiecutter.service_name}} system.
+ Install and configure {{cookiecutter.service_name}}.
