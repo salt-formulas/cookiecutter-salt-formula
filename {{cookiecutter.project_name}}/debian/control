@@ -10,6 +10,6 @@ Vcs-Git: https://github.com/salt-formulas/salt-formula-{{cookiecutter.service_na
 
 Package: salt-formula-{{cookiecutter.service_name}}
 Architecture: all
-Depends: ${misc:Depends}, salt-master, reclass
+Depends: ${misc:Depends}
 Description: {{cookiecutter.service_name}} salt formula
  Install and configure {{cookiecutter.service_name}}.
