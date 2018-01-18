@@ -43,5 +43,5 @@ Instantly, to add kitchen configuration into existing repository:
 .. code-block:: shell
 
     # cd <formula repository>
-    curl -skL "https://raw.githubusercontent.com/salt-formulas/salt-formulas-cookiecutter/master/salt-formula/kitchen-init.sh" | bash -s --
+    curl -skL "https://raw.githubusercontent.com/salt-formulas/cookiecutter-salt-formula/master/kitchen-init.sh" | bash -s --
 

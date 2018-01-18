@@ -2,7 +2,8 @@
 
 # Script to add Kitchen configuration to existing formulas.
 # usage:
-# curl -skL "https://raw.githubusercontent.com/salt-formulas/salt-formulas-cookiecutter/master/salt-formula/kitchen-init.sh" | bash -s --
+# curl -skL
+# "https://raw.githubusercontent.com/salt-formulas/cookiecutter-salt-formula/master/kitchen-init.sh" | bash -s --
 
 # source gist:
 # https://gist.github.com/epcim/b0368794e69e6807635b0c7268e5ceec
@@ -16,7 +17,7 @@ export verifier=${verifier:-inspec}   # serverspec, pester
 export formula=${formula:-$(awk -F: '/^name/{gsub(/[\ \"]/,"");print $2}' metadata.yml)}
 export suites=$(ls tests/pillar|xargs -I{} basename {} .sls)
 
-export SOURCE_REPO_URI="https://raw.githubusercontent.com/salt-formulas/salt-formulas-cookiecutter/master/salt-formula/%7B%7Bcookiecutter.service_name%7D%7D"
+export SOURCE_REPO_URI="https://raw.githubusercontent.com/salt-formulas/cookiecutter-salt-formula/master/%7B%7Bcookiecutter.service_name%7D%7D"
 
 which envtpl &> /dev/null || {
   echo "ERROR: missing prerequisite, install 'envtpl' first : sudo pip install envtpl"
