@@ -2,7 +2,7 @@
 
 # Script to add Kitchen configuration to existing formulas.
 # usage:
-# curl -skL "https://raw.githubusercontent.com/tcpcloud/cookiecutter-salt-formula/master/kitchen-init.sh" | bash -s --
+# curl -skL "https://raw.githubusercontent.com/salt-formulas/salt-formulas-cookiecutter/master/salt-formula/kitchen-init.sh" | bash -s --
 
 # source gist:
 # https://gist.github.com/epcim/b0368794e69e6807635b0c7268e5ceec
@@ -16,7 +16,7 @@ export verifier=${verifier:-inspec}   # serverspec, pester
 export formula=${formula:-$(awk -F: '/^name/{gsub(/[\ \"]/,"");print $2}' metadata.yml)}
 export suites=$(ls tests/pillar|xargs -I{} basename {} .sls)
 
-export SOURCE_REPO_URI="https://raw.githubusercontent.com/tcpcloud/cookiecutter-salt-formula/master/%7B%7Bcookiecutter.project_name%7D%7D"
+export SOURCE_REPO_URI="https://raw.githubusercontent.com/salt-formulas/salt-formulas-cookiecutter/master/salt-formula/%7B%7Bcookiecutter.service_name%7D%7D"
 
 which envtpl &> /dev/null || {
   echo "ERROR: missing prerequisite, install 'envtpl' first : sudo pip install envtpl"
@@ -26,8 +26,10 @@ which envtpl &> /dev/null || {
 # INIT
 ###################################
 test ! -e .kitchen.yml || {
-  kitchen init -D kitchen-docker -P kitchen-salt --no-create-gemfile
+  kitchen init -D kitchen-${driver} -P kitchen-salt --no-create-gemfile
   echo .kitchen >> .gitignore
+  echo .bundle  >> .gitignore
+  echo .vendor  >> .gitignore
   rm -rf test
   rm -f .kitchen.yml
   rm -f chefignore
@@ -39,6 +41,7 @@ test ! -e .kitchen.yml || {
 test -d tests/integration || {
     mkdir -p tests/integration
 }
+# Generate suites:
 #  for suite in $(echo $suites|xargs); do
 #    mkdir -p tests/integration/$suite/$verifier
 #    touch    tests/integration/$suite/$verifier/default_spec.rb
@@ -69,82 +72,25 @@ test -e .kitchen.yml || \
     envtpl < <(curl -skL  "${SOURCE_REPO_URI}/.kitchen.openstack.yml" -- | sed 's/cookiecutter\.kitchen_//g') > .kitchen.openstack.yml
 }
 
-
-
-# UPDATE README, etc...
+# .TRAVIS.YML
 ###################################
 
-grep -Eoq 'Development and testing' README.* || {
-
-KITCHEN_LIST=$(kitchen list|tail -n+2)
-README=$(ls README.*|head -n1)
-cat >> ${README} <<-\EOF
-
-	Development and testing
-	=======================
-	
-	Development and test workflow with `Test Kitchen <http://kitchen.ci>`_ and
-	`kitchen-salt <https://github.com/simonmcc/kitchen-salt>`_ provisioner plugin.
-	
-	Test Kitchen is a test harness tool to execute your configured code on one or more platforms in isolation.
-	There is a ``.kitchen.yml`` in main directory that defines *platforms* to be tested and *suites* to execute on them.
-	
-	Kitchen CI can spin instances locally or remote, based on used *driver*.
-	For local development ``.kitchen.yml`` defines a `vagrant <https://github.com/test-kitchen/kitchen-vagrant>`_ or
-	`docker  <https://github.com/test-kitchen/kitchen-docker>`_ driver.
-	
-	To use backend drivers or implement your CI follow the section `INTEGRATION.rst#Continuous Integration`__.
-	
-	A listing of scenarios to be executed:
-	
-	.. code-block:: shell
-	
-	  $ kitchen list
-	
-	  Instance                    Driver   Provisioner  Verifier  Transport  Last Action
-	
-EOF
-
-echo "$KITCHEN_LIST" | sed 's/^/  /' >> README.*
-
-cat >> README.* <<-\EOF
-	
-	The `Busser <https://github.com/test-kitchen/busser>`_ *Verifier* is used to setup and run tests
-	implementated in `<repo>/test/integration`. It installs the particular driver to tested instance
-	(`Serverspec <https://github.com/neillturner/kitchen-verifier-serverspec>`_,
-	`InSpec <https://github.com/chef/kitchen-inspec>`_, Shell, Bats, ...) prior the verification is executed.
-	
-	
-	Usage:
-	
-	.. code-block:: shell
-	
-	 # list instances and status
-	 kitchen list
-	
-	 # manually execute integration tests
-	 kitchen [test || [create|converge|verify|exec|login|destroy|...]] [instance] -t tests/integration
-	
-	 # use with provided Makefile (ie: within CI pipeline)
-	 make kitchen
-	
-EOF
-}
-
-test -e INTEGRATION.rst || \
-curl -skL  "${SOURCE_REPO_URI}/INTEGRATION.rst" -o INTEGRATION.rst
+test -e .travis.yml || \
+  curl -skL  "${SOURCE_REPO_URI}/.travis.yml" -o .travis.yml
 
 
-# ADD CHANGES TO GIT
-###################################
+# ADD CHANGES
+#############
 
-# update Makefile, but do not auto-add to git
-curl -skL  "${SOURCE_REPO_URI}/Makefile" -o Makefile
+echo "**************************************"
+echo "To update to latest test scripts, run:"
+echo "SOURCE_REPO_URI=${SOURCE_REPO_URI}"
+echo 'curl -skL  "${SOURCE_REPO_URI}/Makefile" -o Makefile'
+echo 'curl -skL  "${SOURCE_REPO_URI}/tests/run_tests.sh" -o tests/run_tests.sh'
 
 git add \
   .gitignore \
-  .kitchen*yml \
-  INTEGRATION.rst \
-  README.rst
+  .kitchen.yml \
+  .travis.yml
 
 git status
