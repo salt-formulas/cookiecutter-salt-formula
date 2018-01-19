@@ -45,3 +45,13 @@ Instantly, to add kitchen configuration into existing repository:
     # cd <formula repository>
     curl -skL "https://raw.githubusercontent.com/salt-formulas/cookiecutter-salt-formula/master/kitchen-init.sh" | bash -s --
 
+
+Docker way
+===============================
+
+.. code-block:: bash
+
+    MY_NEW_SALT_FORMULA_DIR="my_new_salt_formula"
+    mkdir $MY_NEW_SALT_FORMULA_DIR
+    git clone https://github.com/salt-formulas/cookiecutter-salt-formula.git
+    docker run --rm -it -u $(id -u):$(id -g) --env HOME=/$MY_NEW_SALT_FORMULA_DIR -v $PWD/$MY_NEW_SALT_FORMULA_DIR:/$MY_NEW_SALT_FORMULA_DIR -v $PWD/cookiecutter-salt-formula:/cookiecutter-salt-formula:ro cookiecutter/cookiecutter /cookiecutter-salt-formula --output-dir /$MY_NEW_SALT_FORMULA_DIR
