@@ -8,10 +8,8 @@ addons:
     - apt-transport-https
 
 install:
-  - git fetch --unshallow --tags
   - pip install PyYAML
   - pip install virtualenv
-  - pip install reno
   - |
     test -e Gemfile || cat <<EOF > Gemfile
     source 'https://rubygems.org'
