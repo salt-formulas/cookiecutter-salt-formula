@@ -195,7 +195,7 @@ run() {
 real_run() {
     for pillar in ${PILLARDIR}/*.sls; do
         state_name=$(basename ${pillar%.sls})
-        salt_run -m ${DEPSDIR}/salt-formula-salt --id=${state_name} state.sls ${FORMULA_NAME} || { log_err "Execution of ${FORMULA_NAME}.${state_name} failed"; exit 1; }
+        salt_run --id=${state_name} state.sls ${FORMULA_NAME} || { log_err "Execution of ${FORMULA_NAME}.${state_name} failed"; exit 1; }
     done
 }
 
@@ -211,7 +211,7 @@ run_model_validate(){
         minion_id="${state_name}"
         # in case debug-reruns, usefull to make cleanup
         [ -n "$DEBUG" ] && { salt_run saltutil.clear_cache; salt_run saltutil.refresh_pillar; salt_run saltutil.sync_all; }
-        salt_run --id=${minion_id} modelschema.model_validate ${FORMULA_NAME} ${state_name} || { log_err "Execution of ${FORMULA_NAME}.${state_name} failed"; exit 1 ; }
+        salt_run -m ${DEPSDIR}/salt-formula-salt --id=${minion_id} modelschema.model_validate ${FORMULA_NAME} ${state_name} || { log_err "Execution of ${FORMULA_NAME}.${state_name} failed"; exit 1 ; }
     done
 }
 
