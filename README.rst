@@ -51,7 +51,20 @@ Docker way
 
 .. code-block:: bash
 
-    MY_NEW_SALT_FORMULA_DIR="my_new_salt_formula"
+    MY_NEW_SALT_FORMULA_DIR="watchdog"
     mkdir $MY_NEW_SALT_FORMULA_DIR
     git clone https://github.com/salt-formulas/cookiecutter-salt-formula.git
     docker run --rm -it -u $(id -u):$(id -g) --env HOME=/$MY_NEW_SALT_FORMULA_DIR -v $PWD/$MY_NEW_SALT_FORMULA_DIR:/$MY_NEW_SALT_FORMULA_DIR -v $PWD/cookiecutter-salt-formula:/cookiecutter-salt-formula:ro cookiecutter/cookiecutter /cookiecutter-salt-formula --output-dir /$MY_NEW_SALT_FORMULA_DIR
+    service_name [some_service]: watchdog
+    role_name [server]:
+    initial_version [2018.1]:
+    copyright_year [2018]:
+    copyright_holder [Your Name et al.]: Mirantis, Inc.
+    author_name [John Doe]: Petr Ruzicka
+    author_contact [jdoe@domain.com]: pruzicka@mirantis.com
+    homepage [https://github.com/salt-formulas]:
+    debian_version [xenial]:
+    kitchen_driver [docker]:
+    kitchen_verifier [inspec]:
+    kitchen_formula [watchdog]:
+    kitchen_suites []: server
