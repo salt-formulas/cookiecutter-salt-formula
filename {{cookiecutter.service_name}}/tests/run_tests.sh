@@ -45,6 +45,7 @@ setup_virtualenv() {
     virtualenv $VENV_DIR
     source ${VENV_DIR}/bin/activate
     pip install salt${PIP_SALT_VERSION}
+    pip install jsonschema
     if [[ -f ${CURDIR}/pip_requirements.txt ]]; then
        pip install -r ${CURDIR}/pip_requirements.txt
     fi
@@ -200,19 +201,22 @@ real_run() {
 }
 
 run_model_validate(){
-    [[ -d ${SCHEMARDIR} ]] || { log_err "${SCHEMARDIR} not found!"; return 1; }
-    # model validator require py modules
-    fetch_dependency "salt:https://github.com/salt-formulas/salt-formula-salt"
-    link_modules
-    # Rendered Example:
-    # salt-call --local -c /test1/maas/tests/build/salt --id=maas_cluster modelschema.model_validate maas cluster
-    for role in ${SCHEMARDIR}/*.yaml; do
-        state_name=$(basename "${role%*.yaml}")
-        minion_id="${state_name}"
-        # in case debug-reruns, usefull to make cleanup
-        [ -n "$DEBUG" ] && { salt_run saltutil.clear_cache; salt_run saltutil.refresh_pillar; salt_run saltutil.sync_all; }
-        salt_run -m ${DEPSDIR}/salt-formula-salt --id=${minion_id} modelschema.model_validate ${FORMULA_NAME} ${state_name} || { log_err "Execution of ${FORMULA_NAME}.${state_name} failed"; exit 1 ; }
-    done
+    if [ -d ${SCHEMARDIR} ]; then
+      # model validator require py modules
+      fetch_dependency "salt:https://github.com/salt-formulas/salt-formula-salt"
+      link_modules
+      # Rendered Example:
+      # salt-call --local -c /test1/maas/tests/build/salt --id=maas_cluster modelschema.model_validate maas cluster
+      for role in ${SCHEMARDIR}/*.yaml; do
+          state_name=$(basename "${role%*.yaml}")
+          minion_id="${state_name}"
+          # in case debug-reruns, usefull to make cleanup
+          [ -n "$DEBUG" ] && { salt_run saltutil.clear_cache; salt_run saltutil.refresh_pillar; salt_run saltutil.sync_all; }
+          salt_run -m ${DEPSDIR}/salt-formula-salt --id=${minion_id} modelschema.model_validate ${FORMULA_NAME} ${state_name} || { log_err "Execution of ${FORMULA_NAME}.${state_name} failed"; exit 1 ; }
+      done
+    else
+      log_err "${SCHEMARDIR} not found!";
+    fi
 }
 
 _atexit() {
