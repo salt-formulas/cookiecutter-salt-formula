@@ -28,7 +28,6 @@ env:
 before_script:
   - set -o pipefail
   - make test | tail
-  - reno lint $PWD | tail
 
 script:
   - test ! -e .kitchen.yml || bundle exec kitchen converge ${SUITE} || true
