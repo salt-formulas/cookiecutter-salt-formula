@@ -2,7 +2,8 @@
 
 ###
 # Script requirments:
-#  apt-get install -y python-yaml virtualenv git
+#apt-get install -y python-yaml virtualenv git
+
 set -e
 [ -n "$DEBUG" ] && set -x
 
@@ -42,6 +43,7 @@ log_err() {
 
 setup_virtualenv() {
     log_info "Setting up Python virtualenv"
+    dependency_check virtualenv
     virtualenv $VENV_DIR
     source ${VENV_DIR}/bin/activate
     pip install salt${PIP_SALT_VERSION}
@@ -109,6 +111,7 @@ fetch_dependency() {
     dep_root="${DEPSDIR}/$(basename $dep_source .git)"
     dep_metadata="${dep_root}/metadata.yml"
 
+    dependency_check git
     [ -d $dep_root ] && { log_info "Dependency $dep_name already fetched"; return 0; }
 
     log_info "Fetching dependency $dep_name"
@@ -217,6 +220,14 @@ run_model_validate(){
     else
       log_err "${SCHEMARDIR} not found!";
     fi
+}
+
+dependency_check() {
+  local DEPENDENCY_COMMANDS=$*
+
+  for DEPENDENCY_COMMAND in $DEPENDENCY_COMMANDS; do
+    which $DEPENDENCY_COMMAND > /dev/null || ( log_err "Command \"$DEPENDENCY_COMMAND\" can not be found in default path."; exit 1; )
+  done
 }
 
 _atexit() {
