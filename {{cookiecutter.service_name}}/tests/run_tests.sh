@@ -218,7 +218,7 @@ run_model_validate(){
           salt_run -m ${DEPSDIR}/salt-formula-salt --id=${minion_id} modelschema.model_validate ${FORMULA_NAME} ${state_name} || { log_err "Execution of ${FORMULA_NAME}.${state_name} failed"; exit 1 ; }
       done
     else
-      log_err "${SCHEMARDIR} not found!";
+      log_info "${SCHEMARDIR} not found!";
     fi
 }
 
