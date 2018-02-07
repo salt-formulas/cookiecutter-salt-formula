@@ -199,24 +199,27 @@ run() {
 real_run() {
     for pillar in ${PILLARDIR}/*.sls; do
         state_name=$(basename ${pillar%.sls})
-        salt_run -m ${DEPSDIR}/salt-formula-salt --id=${state_name} state.sls ${FORMULA_NAME} || { log_err "Execution of ${FORMULA_NAME}.${state_name} failed"; exit 1; }
+        salt_run --id=${state_name} state.sls ${FORMULA_NAME} || { log_err "Execution of ${FORMULA_NAME}.${state_name} failed"; exit 1; }
     done
 }
 
 run_model_validate(){
-    [[ -d ${SCHEMARDIR} ]] || { log_err "${SCHEMARDIR} not found!"; return 1; }
-    # model validator require py modules
-    fetch_dependency "salt:https://github.com/salt-formulas/salt-formula-salt"
-    link_modules
-    # Rendered Example:
-    # salt-call --local -c /test1/maas/tests/build/salt --id=maas_cluster modelschema.model_validate maas cluster
-    for role in ${SCHEMARDIR}/*.yaml; do
-        state_name=$(basename "${role%*.yaml}")
-        minion_id="${state_name}"
-        # in case debug-reruns, usefull to make cleanup
-        [ -n "$DEBUG" ] && { salt_run saltutil.clear_cache; salt_run saltutil.refresh_pillar; salt_run saltutil.sync_all; }
-        salt_run -m ${DEPSDIR}/salt-formula-salt --id=${minion_id} modelschema.model_validate ${FORMULA_NAME} ${state_name} || { log_err "Execution of ${FORMULA_NAME}.${state_name} failed"; exit 1 ; }
-    done
+    if [ -d ${SCHEMARDIR} ]; then
+      # model validator require py modules
+      fetch_dependency "salt:https://github.com/salt-formulas/salt-formula-salt"
+      link_modules
+      # Rendered Example:
+      # salt-call --local -c /test1/maas/tests/build/salt --id=maas_cluster modelschema.model_validate maas cluster
+      for role in ${SCHEMARDIR}/*.yaml; do
+          state_name=$(basename "${role%*.yaml}")
+          minion_id="${state_name}"
+          # in case debug-reruns, usefull to make cleanup
+          [ -n "$DEBUG" ] && { salt_run saltutil.clear_cache; salt_run saltutil.refresh_pillar; salt_run saltutil.sync_all; }
+          salt_run -m ${DEPSDIR}/salt-formula-salt --id=${minion_id} modelschema.model_validate ${FORMULA_NAME} ${state_name} || { log_err "Execution of ${FORMULA_NAME}.${state_name} failed"; exit 1 ; }
+      done
+    else
+      log_err "${SCHEMARDIR} not found!";
+    fi
 }
 
 dependency_check() {

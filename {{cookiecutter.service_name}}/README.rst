@@ -6,8 +6,8 @@
 Service {{cookiecutter.service_name}} description
 
 
-Sample Pillars
-==============
+Sample Metadata
+===============
 
 Single {{cookiecutter.service_name}} service
 
@@ -18,10 +18,12 @@ Single {{cookiecutter.service_name}} service
         enabled: true
 
 
-More Information
-================
+References
+==========
 
-* A link to project home
+* A link to the documentation
+* A link to the home page
+* A link to the source code
 
 
 Documentation and Bugs
@@ -54,8 +56,3 @@ Any questions or feedback is always welcome so feel free to join our IRC
 channel:
 
     #salt-formulas @ irc.freenode.net
-
-Read more
-=========
-
-* links
