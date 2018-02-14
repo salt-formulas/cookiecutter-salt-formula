@@ -42,6 +42,7 @@ install:
 	cp -a $(FORMULANAME) $(DESTDIR)/$(SALTENVDIR)/
 	[ ! -d _modules ] || cp -a _modules $(DESTDIR)/$(SALTENVDIR)/
 	[ ! -d _states ] || cp -a _states $(DESTDIR)/$(SALTENVDIR)/ || true
+	[ ! -d _engines ] || cp -a _engines $(DESTDIR)/$(SALTENVDIR)/ || true
 	[ ! -d _grains ] || cp -a _grains $(DESTDIR)/$(SALTENVDIR)/ || true
 	# Metadata
 	[ -d $(DESTDIR)/$(RECLASSDIR)/service/$(FORMULANAME) ] || mkdir -p $(DESTDIR)/$(RECLASSDIR)/service/$(FORMULANAME)
