@@ -31,9 +31,10 @@ provisioner:
 
 
 platforms:
-  - name: ubuntu-14.04
-  - name: ubuntu-16.04
-  - name: centos-7.1
+  - name: <%=ENV['PLATFORM'] ||  'saltstack-ubuntu-xenial-salt-stable' %>
+    driver_config:
+      image: <%=ENV['PLATFORM'] || 'epcim/salt-formulas:saltstack-ubuntu-xenial-salt-stable'%>
+      platform: ubuntu
 
 
 verifier:
