@@ -161,8 +161,8 @@ prepare() {
     setup_mock_bin
     setup_pillar
     setup_salt
-    link_modules
     install_dependencies
+    link_modules
 }
 
 lint_releasenotes() {
