@@ -161,6 +161,7 @@ prepare() {
     setup_mock_bin
     setup_pillar
     setup_salt
+    link_modules
     install_dependencies
 }
 
@@ -213,8 +214,7 @@ run_model_validate(){
       for role in ${SCHEMARDIR}/*.yaml; do
           state_name=$(basename "${role%*.yaml}")
           minion_id="${state_name}"
-          # in case debug-reruns, usefull to make cleanup
-          [ -n "$DEBUG" ] && { salt_run saltutil.clear_cache; salt_run saltutil.refresh_pillar; salt_run saltutil.sync_all; }
+          salt_run saltutil.clear_cache; salt_run saltutil.refresh_pillar; salt_run saltutil.sync_all;
           salt_run -m ${DEPSDIR}/salt-formula-salt --id=${minion_id} modelschema.model_validate ${FORMULA_NAME} ${state_name} || { log_err "Execution of ${FORMULA_NAME}.${state_name} failed"; exit 1 ; }
       done
     else
