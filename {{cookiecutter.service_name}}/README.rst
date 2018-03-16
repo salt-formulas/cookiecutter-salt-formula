@@ -1,6 +1,6 @@
 
 ==================================
-{{cookiecutter.service_name|capfirst}} Formula
+{{cookiecutter.service_name|capitalize}} Formula
 ==================================
 
 Service {{cookiecutter.service_name}} description
