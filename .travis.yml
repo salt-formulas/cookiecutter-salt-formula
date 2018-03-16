@@ -1,0 +1,10 @@
+language: python
+
+install:
+  - pip install cookiecutter
+
+script:
+  - MY_NEW_SALT_FORMULA_DIR="my_test_formula"
+  - mkdir $MY_NEW_SALT_FORMULA_DIR
+  - cookiecutter $PWD --output-dir $MY_NEW_SALT_FORMULA_DIR --no-input
+  - ls $MY_NEW_SALT_FORMULA_DIR/*/README.rst

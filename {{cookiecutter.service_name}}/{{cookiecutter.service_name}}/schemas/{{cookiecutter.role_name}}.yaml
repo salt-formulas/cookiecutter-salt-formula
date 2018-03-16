@@ -3,7 +3,7 @@
 "$schema": "http://json-schema.org/draft-06/schema#"
 title: {{cookiecutter.service_name}} daemon role
 description: |
-  {{cookiecutter.service_name|capfirst}} daemon, server role
+  {{cookiecutter.service_name|capitalize}} daemon, server role
 type: object
 additionalProperties: false
 
