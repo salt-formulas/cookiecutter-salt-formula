@@ -28,6 +28,8 @@ SALT_CACHE_EXTMODS_DIR=${SALT_CACHE_EXTMODS_DIR:-${SALT_CONFIG_DIR}/cache_master
 
 SALT_OPTS="${SALT_OPTS} --retcode-passthrough --local -c ${SALT_CONFIG_DIR} --log-file=/dev/null"
 
+IGNORE_MODELVALIDATE_MASK=${IGNORE_MODELVALIDATE_MASK:-"novalidate"}
+
 if [ "x${SALT_VERSION}" != "x" ]; then
     PIP_SALT_VERSION="==${SALT_VERSION}"
 fi
@@ -47,9 +49,8 @@ setup_virtualenv() {
     virtualenv $VENV_DIR
     source ${VENV_DIR}/bin/activate
     python -m pip install salt${PIP_SALT_VERSION}
-    python -m pip install jsonschema
-    if [[ -f ${CURDIR}/pip_requirements.txt ]]; then
-       python -m pip install -r ${CURDIR}/pip_requirements.txt
+    if [[ -f ${CURDIR}/test-requirements.txt ]]; then
+       python -m pip install -r ${CURDIR}/test-requirements.txt
     fi
 }
 
@@ -155,7 +156,11 @@ salt_run() {
 }
 
 prepare() {
-    [ -d ${BUILDDIR} ] && mkdir -p ${BUILDDIR}
+    if [[ -f ${BUILDDIR}/.prepare_done ]]; then
+      log_info "${BUILDDIR}/.prepare_done exist, not rebuilding BUILDDIR"
+      return
+    fi
+    [[ -d ${BUILDDIR} ]] && mkdir -p ${BUILDDIR}
 
     [[ ! -f "${VENV_DIR}/bin/activate" ]] && setup_virtualenv
     setup_mock_bin
@@ -163,12 +168,12 @@ prepare() {
     setup_salt
     install_dependencies
     link_modules
+    touch ${BUILDDIR}/.prepare_done
 }
 
 lint_releasenotes() {
     [[ ! -f "${VENV_DIR}/bin/activate" ]] && setup_virtualenv
     source ${VENV_DIR}/bin/activate
-    python -m pip install reno
     reno lint ${CURDIR}/../
 }
 
@@ -205,21 +210,30 @@ real_run() {
 }
 
 run_model_validate(){
-    if [ -d ${SCHEMARDIR} ]; then
-      # model validator require py modules
-      fetch_dependency "salt:https://github.com/salt-formulas/salt-formula-salt"
-      link_modules
-      # Rendered Example:
-      # python $(which salt-call) --local -c /test1/maas/tests/build/salt --id=maas_cluster modelschema.model_validate maas cluster
-      for role in ${SCHEMARDIR}/*.yaml; do
-          state_name=$(basename "${role%*.yaml}")
-          minion_id="${state_name}"
-          salt_run saltutil.clear_cache; salt_run saltutil.refresh_pillar; salt_run saltutil.sync_all;
-          salt_run -m ${DEPSDIR}/salt-formula-salt --id=${minion_id} modelschema.model_validate ${FORMULA_NAME} ${state_name} || { log_err "Execution of ${FORMULA_NAME}.${state_name} failed"; exit 1 ; }
+  # Run modelschema.model_validate validation.
+  # TEST iterateble, run for `each formula ROLE against each ROLE_PILLARNAME`
+  # Pillars should be named in conviend ROLE_XXX.sls or ROLE.sls
+  # Example:
+  # client.sls  client_auth.sls  server.sls  server_auth.sls
+  if [ -d ${SCHEMARDIR} ]; then
+    # model validator require py modules
+    fetch_dependency "salt:https://github.com/salt-formulas/salt-formula-salt"
+    link_modules
+    salt_run saltutil.clear_cache; salt_run saltutil.refresh_pillar; salt_run saltutil.sync_all;
+    for role in ${SCHEMARDIR}/*.yaml; do
+      role_name=$(basename "${role%*.yaml}")
+      for pillar in $(ls pillar/${role_name}*.sls | grep -v ${IGNORE_MODELVALIDATE_MASK} ); do
+        pillar_name=$(basename "${pillar%*.sls}")
+        local _message="FORMULA:${FORMULA_NAME} ROLE:${role_name} against PILLAR:${pillar_name}"
+        log_info "model_validate ${_message}"
+        # Rendered Example:
+        # python $(which salt-call) --local -c /test1/maas/tests/build/salt --id=maas_cluster modelschema.model_validate maas cluster
+        salt_run -m ${DEPSDIR}/salt-formula-salt --id=${pillar_name} modelschema.model_validate ${FORMULA_NAME} ${role_name} || { log_err "Execution of model_validate ${_message} failed"; exit 1 ; }
       done
-    else
-      log_info "${SCHEMARDIR} not found!";
-    fi
+    done
+  else
+    log_info "${SCHEMARDIR} not found!";
+  fi
 }
 
 dependency_check() {
