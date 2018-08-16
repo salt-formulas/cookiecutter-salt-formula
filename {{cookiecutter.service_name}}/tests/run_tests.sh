@@ -4,6 +4,11 @@
 # Script requirments:
 #apt-get install -y python-yaml virtualenv git
 
+__ScriptVersion="2018.08.16"
+__ScriptName="run_tests.sh"
+__ScriptFullName="$0"
+__ScriptArgs="$*"
+
 set -e
 [ -n "$DEBUG" ] && set -x
 
@@ -257,6 +262,10 @@ _atexit() {
 }
 
 ## Main
+
+log_info "Running version: ${__ScriptVersion}"
+log_info "Command line: '${__ScriptFullName} ${__ScriptArgs}'"
+
 trap _atexit INT TERM EXIT
 
 case $1 in
