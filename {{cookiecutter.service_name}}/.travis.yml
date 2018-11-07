@@ -12,7 +12,6 @@ install:
   - pip install virtualenv
   - |
     if [ ! -e Gemfile ]; then
-      echo $PWD
       curl -s -o ./Gemfile https://raw.githubusercontent.com/salt-formulas/salt-formulas-scripts/master/Gemfile
     fi
   - bundle install
