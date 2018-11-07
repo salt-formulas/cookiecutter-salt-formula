@@ -11,14 +11,10 @@ install:
   - pip install PyYAML
   - pip install virtualenv
   - |
-    test -e Gemfile || cat <<EOF > Gemfile
-    source 'https://rubygems.org'
-    gem 'rake'
-    gem 'test-kitchen'
-    gem 'kitchen-docker'
-    gem 'kitchen-inspec'
-    gem 'inspec'
-    gem 'kitchen-salt'   #, :git => 'https://github.com/salt-formulas/kitchen-salt.git'
+    if [ ! -e Gemfile ]; then
+      echo $PWD
+      curl -s -o ./Gemfile https://raw.githubusercontent.com/salt-formulas/salt-formulas-scripts/master/Gemfile
+    fi
   - bundle install
 
 env:
